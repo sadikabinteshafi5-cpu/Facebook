@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">সাত ফেসবুক - Sat Facebook</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .lang-selector { float: right; margin-bottom: 15px; }
+        .lang-selector select { padding: 5px 10px; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; cursor: pointer; }
+        .btn { background: #1877f2; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; margin-top: 10px; font-weight: bold; }
+        .btn-green { background: #42b72a; }
+        .btn:hover { opacity: 0.9; }
+        input { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .form-box { display: none; }
+        .form-box.active { display: block; }
+        .switch-text { text-align: center; margin-top: 15px; color: #1877f2; cursor: pointer; }
+        .switch-text:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- ভাষা পরিবর্তনের ড্রপডাউন মেনু -->
+        <div class="lang-selector">
+            <label id="langLabel" for="languageSelect">ভাষা / Language: </label>
+            <select id="languageSelect" onchange="changeLanguage(this.value)">
+                <option value="bn">বাংলা (Bengali)</option>
+                <option value="en">English</option>
+            </select>
+        </div>
+
+        <div style="clear: both;"></div>
+
+        <h2 id="mainHeading" style="text-align: center; color: #1877f2;">সাত ফেসবুক</h2>
+        <p id="subHeading" style="text-align: center; color: #65676b; margin-bottom: 20px;">নিরাপদ এবং স্ক্যাম-মুক্ত সোশ্যাল মিডিয়া প্ল্যাটফর্ম।</p>
+
+        <!-- ১. লগইন ফর্ম -->
+        <div id="loginForm" class="form-box active">
+            <h3 id="loginTitle">লগইন করুন</h3>
+            <input type="text" id="loginUsername" placeholder="ইউজারনেম দিন">
+            <input type="password" id="passwordInput" placeholder="পাসওয়ার্ড দিন">
+            <button class="btn" id="loginBtn">লগইন করুন</button>
+            <p class="switch-text" id="goToRegister" onclick="toggleForms()">অ্যাকাউন্ট নেই? নতুন অ্যাকাউন্ট তৈরি করুন</p>
+        </div>
+
+        <!-- ২. অ্যাকাউন্ট সাইন-আপ বা রেজিস্ট্রেশন ফর্ম -->
+        <div id="registerForm" class="form-box">
+            <h3 id="registerTitle">নতুন অ্যাকাউন্ট তৈরি করুন</h3>
+            <input type="text" id="regUsername" placeholder="আপনার নাম বা ইউজারনেম দিন">
+            <input type="text" id="regContact" placeholder="ইমেইল অথবা ফোন নম্বর দিন">
+            <input type="password" id="regPassword" placeholder="নতুন পাসওয়ার্ড দিন">
+            <button class="btn btn-green" id="registerBtn">নিবন্ধন করুন (Sign Up)</button>
+            <p class="switch-text" id="goToLogin" onclick="toggleForms()">ইতিমধ্যে অ্যাকাউন্ট আছে? লগইন করুন</p>
+        </div>
+
+        <!-- ৩. ড্যাশবোর্ড / নিউজফিড (লগইন করার পর যা দেখাবে) -->
+        <div id="dashboard" class="form-box" style="text-align: center;">
+            <h3 id="welcomeMsg">স্বাগতম, <span id="loggedInName"></span>!</h3>
+            <p id="dashSub">আপনার অ্যাকাউন্টটি সম্পূর্ণ নিরাপদ।</p>
+            
+            <div style="background: #f9f9f9; padding: 15px; border-radius: 6px; margin-top: 15px; text-align: left;">
+                <h4 id="settingsTitle" style="margin-top: 0;">অ্যাকাউন্ট সিকিউরিটি সেটিংস</h4>
+                <button class="btn" id="nameChangeBtn" onclick="openNameChangePrompt()" style="background-color: #42b72a;">নাম পরিবর্তন করুন</button>
+            </div>
+
+            <button class="btn" id="logoutBtn" onclick="logout()" style="background-color: #dc3545; margin-top: 20px;">লগআউট</button>
+        </div>
+    </div>
+
+    <script>
+        // ভাষার ডিকশনারি (বাংলা এবং ইংরেজি)
+        const translations = {
+            bn: {
+                pageTitle: "সাত ফেসবুক - Sat Facebook",
+                langLabel: "ভাষা / Language: ",
+                mainHeading: "সাত ফেসবুক",
+                subHeading: "নিরাপদ এবং স্ক্যাম-মুক্ত সোশ্যাল মিডিয়া প্ল্যাটফর্ম।",
+                loginTitle: "লগইন করুন",
+                loginUsernamePlaceholder: "ইউজারনেম দিন",
+                passwordPlaceholder: "পাসওয়ার্ড দিন",
+                loginBtnText: "লগইন করুন",
+                goToRegisterText: "অ্যাকাউন্ট নেই? নতুন অ্যাকাউন্ট তৈরি করুন",
+                registerTitle: "নতুন অ্যাকাউন্ট তৈরি করুন",
+                regUsernamePlaceholder: "আপনার নাম বা ইউজারনেম দিন",
+                regContactPlaceholder: "ইমেইল অথবা ফোন নম্বর দিন",
+                regPasswordPlaceholder: "নতুন পাসওয়ার্ড দিন",
+                registerBtnText: "নিবন্ধন করুন (Sign Up)",
+                goToLoginText: "ইতিমধ্যে অ্যাকাউন্ট আছে? লগইন করুন",
+                settingsTitle: "অ্যাকাউন্ট সিকিউরিটি সেটিংস",
+                nameChangeBtnText: "নাম পরিবর্তন করুন",
+                logoutBtnText: "লগআউট"
+            },
+            en: {
+                pageTitle: "Sat Facebook - Secure Platform",
+                langLabel: "Language / ভাষা: ",
+                mainHeading: "Sat Facebook",
+                subHeading: "A secure and scam-free social media platform.",
+                loginTitle: "Log In",
+                loginUsernamePlaceholder: "Enter username",
+                passwordPlaceholder: "Enter password",
+                loginBtnText: "Log In",
+                goToRegisterText: "Don't have an account? Sign Up",
+                registerTitle: "Create a New Account",
+                regUsernamePlaceholder: "Enter your name or username",
+                regContactPlaceholder: "Enter email or phone number",
+                regPasswordPlaceholder: "Enter new password",
+                registerBtnText: "Sign Up",
+                goToLoginText: "Already have an account? Log In",
+                settingsTitle: "Account Security Settings",
+                nameChangeBtnText: "Change Name",
+                logoutBtnText: "Log Out"
+            }
+        };
+
+        let currentLang = 'bn';
+
+        // ভাষা পরিবর্তন করার ফাংশন
+        function changeLanguage(lang) {
+            currentLang = lang;
+            const t = translations[lang];
+            document.getElementById('pageTitle').innerText = t.pageTitle;
+            document.getElementById('langLabel').innerText = t.langLabel;
+            document.getElementById('mainHeading').innerText = t.mainHeading;
+            document.getElementById('subHeading').innerText = t.subHeading;
+            
+            document.getElementById('loginTitle').innerText = t.loginTitle;
+            document.getElementById('loginUsername').placeholder = t.loginUsernamePlaceholder;
+            document.getElementById('passwordInput').placeholder = t.passwordPlaceholder;
+            document.getElementById('loginBtn').innerText = t.loginBtnText;
+            document.getElementById('goToRegister').innerText = t.goToRegisterText;
+
+            document.getElementById('registerTitle').innerText = t.registerTitle;
+            document.getElementById('regUsername').placeholder = t.regUsernamePlaceholder;
+            document.getElementById('regContact').placeholder = t.regContactPlaceholder;
+            document.getElementById('regPassword').placeholder = t.regPasswordPlaceholder;
+            document.getElementById('registerBtn').innerText = t.registerBtnText;
+            document.getElementById('goToLogin').innerText = t.goToLoginText;
+
+            document.getElementById('settingsTitle').innerText = t.settingsTitle;
+            document.getElementById('nameChangeBtn').innerText = t.nameChangeBtnText;
+            document.getElementById('logoutBtn').innerText = t.logoutBtnText;
+        }
+
+        // ফর্ম পরিবর্তন (লগইন থেকে সাইন-আপ এবং সাইন-আপ থেকে লগইন)
+        function toggleForms() {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            loginForm.classList.toggle('active');
+            registerForm.classList.toggle('active');
+        }
+
+        let loggedInUserId = null;
+
+        // লগআউট ফাংশন
+        function logout() {
+            loggedInUserId = null;
+            document.getElementById('dashboard').classList.remove('active');
+            document.getElementById('loginForm').classList.add('active');
+        }
+
+        // নাম পরিবর্তনের সিকিউর ফাংশন
+        async function openNameChangePrompt() {
+            const promptMsg = currentLang === 'bn' ? "আপনার নতুন নামটি লিখুন:" : "Enter your new name:";
+            const passMsg = currentLang === 'bn' ? "সিকিউরিটির জন্য আপনার বর্তমান পাসওয়ার্ডটি দিন:" : "Enter your current password for security:";
+            
+            const newUsername = prompt(promptMsg);
+            if (!newUsername) return;
+
+            const password = prompt(passMsg);
+            if (!password) return;
+
+            try {
+                const res = await fetch('/api/update-name', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: loggedInUserId, newUsername, password })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    alert(data.message);
+                    document.getElementById('loggedInName').innerText = data.user.username;
+                } else {
+                    alert(data.error || 'Failed');
+                }
+            } catch (err) {
+                alert('Server error');
+            }
+        }
+    </script>
+
+</body>
+</html>
